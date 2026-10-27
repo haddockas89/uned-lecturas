@@ -1,0 +1,180 @@
+{
+  "contentVersion": 1,
+  "updated": "2026-10-27",
+  "cats": [
+    {"id":"manual","name":"Manual","color":"#8a5a2b"},
+    {"id":"lectura","name":"Lectura","color":"#2f6f8f"},
+    {"id":"material","name":"Material","color":"#7a6f5c"},
+    {"id":"video","name":"Vídeo","color":"#8a4f9e"},
+    {"id":"test","name":"Test","color":"#3f7a4a"},
+    {"id":"entrega","name":"Entrega","color":"#b0472a"}
+  ],
+  "subjects": [
+    {
+      "id": "ipc", "code": "IPC", "name": "Introducción al Pensamiento Científico", "semester": "1.er cuatrimestre", "color": "ipc",
+      "topics": [
+        {"id": "ipc-t01", "name": "T1 · Ciencia, hechos y evidencia", "block": "Bloque I · Evidencia, verdad y conocimiento científico", "items": [
+          {"id":"ipc-t01-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t01-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t01-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t01-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t01-05","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t02", "name": "T2 · Conocimiento empírico y observación", "block": "Bloque I · Evidencia, verdad y conocimiento científico", "items": [
+          {"id":"ipc-t02-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t02-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t02-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t02-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t02-05","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t03", "name": "T3 · Experimentación", "block": "Bloque I · Evidencia, verdad y conocimiento científico", "items": [
+          {"id":"ipc-t03-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t03-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t03-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t03-04","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t04", "name": "T4 · El método científico", "block": "Bloque I · Evidencia, verdad y conocimiento científico", "items": [
+          {"id":"ipc-t04-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t04-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t04-03","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t05", "name": "T5 · El problema de la inducción", "block": "Bloque II · Los límites de la ciencia", "items": [
+          {"id":"ipc-t05-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t05-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t05-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t05-04","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t06", "name": "T6 · Probabilidad y estadística", "block": "Bloque II · Los límites de la ciencia", "items": [
+          {"id":"ipc-t06-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t06-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t06-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t06-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t06-05","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t07", "name": "T7 · El uso de los modelos en ciencia", "block": "Bloque II · Los límites de la ciencia", "items": [
+          {"id":"ipc-t07-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t07-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t07-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t07-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t07-05","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t08", "name": "T8 · Paradigmas y cambio científico", "block": "Bloque II · Los límites de la ciencia", "items": [
+          {"id":"ipc-t08-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t08-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t08-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t08-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t08-05","title":"Texto 4","cat":"lectura"},
+          {"id":"ipc-t08-06","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t09", "name": "T9 · El criterio de demarcación", "block": "Bloque III · La ciencia en sociedad", "items": [
+          {"id":"ipc-t09-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t09-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t09-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t09-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t09-05","title":"Texto 4","cat":"lectura"},
+          {"id":"ipc-t09-06","title":"Texto 5","cat":"lectura"},
+          {"id":"ipc-t09-07","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t10", "name": "T10 · La ciencia y sus enemigos", "block": "Bloque III · La ciencia en sociedad", "items": [
+          {"id":"ipc-t10-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t10-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t10-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t10-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t10-05","title":"Texto 4","cat":"lectura"},
+          {"id":"ipc-t10-06","title":"Texto 5","cat":"lectura"},
+          {"id":"ipc-t10-07","title":"Texto 6","cat":"lectura"},
+          {"id":"ipc-t10-08","title":"Texto 7","cat":"lectura"},
+          {"id":"ipc-t10-09","title":"Texto 8","cat":"lectura"},
+          {"id":"ipc-t10-10","title":"Texto 9","cat":"lectura"},
+          {"id":"ipc-t10-11","title":"Texto 10","cat":"lectura"},
+          {"id":"ipc-t10-12","title":"Texto 11","cat":"lectura"},
+          {"id":"ipc-t10-13","title":"Texto 12","cat":"lectura"},
+          {"id":"ipc-t10-14","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t11", "name": "T11 · La ciencia como producto social", "block": "Bloque III · La ciencia en sociedad", "items": [
+          {"id":"ipc-t11-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t11-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t11-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t11-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t11-05","title":"Texto 4","cat":"lectura"},
+          {"id":"ipc-t11-06","title":"Texto 5","cat":"lectura"},
+          {"id":"ipc-t11-07","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t12", "name": "T12 · ¿Cómo funcionan las instituciones científicas?", "block": "Bloque III · La ciencia en sociedad", "items": [
+          {"id":"ipc-t12-01","title":"Transparencias","cat":"material"},
+          {"id":"ipc-t12-02","title":"Texto 1","cat":"lectura"},
+          {"id":"ipc-t12-03","title":"Texto 2","cat":"lectura"},
+          {"id":"ipc-t12-04","title":"Texto 3","cat":"lectura"},
+          {"id":"ipc-t12-05","title":"Texto 4","cat":"lectura"},
+          {"id":"ipc-t12-06","title":"Texto 5","cat":"lectura"},
+          {"id":"ipc-t12-07","title":"Texto 6","cat":"lectura"},
+          {"id":"ipc-t12-08","title":"Texto 7","cat":"lectura"},
+          {"id":"ipc-t12-09","title":"Test de autoevaluación","cat":"test"}
+        ]},
+        {"id": "ipc-t13", "name": "PEC · Comentarios de texto", "block": "Evaluación continua", "items": [
+          {"id":"ipc-t13-01","title":"PEC Bloque I","cat":"entrega","note":"Límite: 7 nov 2026"},
+          {"id":"ipc-t13-02","title":"PEC Bloque II","cat":"entrega","note":"Límite: 7 dic 2026"},
+          {"id":"ipc-t13-03","title":"PEC Bloque III","cat":"entrega","note":"Límite: 11 ene 2027"}
+        ]}
+      ]
+    },
+    {
+      "id": "as1", "code": "AS1", "name": "Antropología Social I", "semester": "1.er cuatrimestre", "color": "as1",
+      "topics": [
+        {"id": "as1-t01", "name": "T1 · Antropología y cultura", "items": [
+          {"id":"as1-t01-01","title":"Kottak, cap. 1 «¿Qué es antropología?»","cat":"manual"},
+          {"id":"as1-t01-02","title":"Kottak, cap. 2 «Cultura»","cat":"manual"},
+          {"id":"as1-t01-03","title":"Kottak, cap. 3 · último epígrafe (cuestiones éticas)","cat":"manual"},
+          {"id":"as1-t01-04","title":"Bohannan, «Shakespeare en la selva»","cat":"lectura","note":"Velasco"},
+          {"id":"as1-t01-05","title":"Brown, «Relativismo 2.0»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t01-06","title":"Videoclase T1","cat":"video"}
+        ]},
+        {"id": "as1-t02", "name": "T2 · Método y teorías", "items": [
+          {"id":"as1-t02-01","title":"Kottak, cap. 3 «Antropología en acción»","cat":"manual"},
+          {"id":"as1-t02-02","title":"Peacock, «Método»","cat":"lectura","note":"Velasco"},
+          {"id":"as1-t02-03","title":"Keesing, «Teorías de la cultura»","cat":"lectura","note":"Velasco"},
+          {"id":"as1-t02-04","title":"Videoclase T2","cat":"video"}
+        ]},
+        {"id": "as1-t03", "name": "T3 · Etnicidad, raza e identidad", "items": [
+          {"id":"as1-t03-01","title":"Kottak, «Etnicidad y raza»","cat":"manual"},
+          {"id":"as1-t03-02","title":"Lévi-Strauss, «Raza e historia»","cat":"lectura","note":"Velasco"},
+          {"id":"as1-t03-03","title":"S. Hall, «Introducción a Representación»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t03-04","title":"S. Hall, «El espectáculo del Otro»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t03-05","title":"Baumann, «Gramáticas de identidad/alteridad»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t03-06","title":"Videoclase T3","cat":"video"}
+        ]},
+        {"id": "as1-t04", "name": "T4 · Lenguaje, comunicación y cognición", "items": [
+          {"id":"as1-t04-01","title":"Kottak, «Lenguaje y comunicación»","cat":"manual"},
+          {"id":"as1-t04-02","title":"E. y M. Hall, «El sonido del silencio»","cat":"lectura","note":"Velasco"},
+          {"id":"as1-t04-03","title":"Díaz de Rada y Cruces, «Etnociencia»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t04-04","title":"Pratt, «¿Por qué la Virgen de Zapopan fue a Los Ángeles?»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t04-05","title":"Videoclase T4","cat":"video"}
+        ]},
+        {"id": "as1-t05", "name": "T5 · Antropología simbólica", "items": [
+          {"id":"as1-t05-01","title":"Kottak, «Religión»","cat":"manual"},
+          {"id":"as1-t05-02","title":"Turner, «Símbolos en el ritual Ndembu»","cat":"lectura","note":"Velasco"},
+          {"id":"as1-t05-03","title":"Finnegan, «¿Para qué estudiar la música?»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t05-04","title":"Videoclase T5","cat":"video"}
+        ]},
+        {"id": "as1-t06", "name": "T6 · Antropología urbana", "items": [
+          {"id":"as1-t06-01","title":"García Canclini, «Las cuatro ciudades de México»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t06-02","title":"Martín Barbero, «La ciudad que median los miedos»","cat":"lectura","note":"Cruces y Pérez Galán"},
+          {"id":"as1-t06-03","title":"Videoclase T6","cat":"video"}
+        ]},
+        {"id": "as1-t07", "name": "Trabajo voluntario (+1 punto)", "items": [
+          {"id":"as1-t07-01","title":"Leer la pregunta-guía","cat":"entrega"},
+          {"id":"as1-t07-02","title":"Esquema y selección de lecturas","cat":"entrega"},
+          {"id":"as1-t07-03","title":"Redacción (1/3)","cat":"entrega"},
+          {"id":"as1-t07-04","title":"Redacción (2/3)","cat":"entrega"},
+          {"id":"as1-t07-05","title":"Redacción (3/3)","cat":"entrega"},
+          {"id":"as1-t07-06","title":"Revisión","cat":"entrega"},
+          {"id":"as1-t07-07","title":"Subir el trabajo","cat":"entrega","note":"Límite: 8 ene 2027, 23:55"}
+        ]}
+      ]
+    },
+    {
+      "id": "as2", "code": "AS2", "name": "Antropología Social II", "semester": "2.º cuatrimestre", "color": "as2",
+      "topics": []
+    }
+  ]
+}

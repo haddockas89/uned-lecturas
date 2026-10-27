@@ -150,6 +150,9 @@ textarea.inp{min-height:72px;resize:vertical}
   background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;transition:all .25s;pointer-events:none;z-index:50}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .view.enter{animation:fade .2s ease}
+.update{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:12px 14px;border-radius:var(--r);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.update .ut{flex:1;font-size:14px;color:var(--ink-2)}
+.update .ut b{display:block;color:var(--ink);font-size:15px}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 </style>
 </head>
@@ -163,106 +166,148 @@ textarea.inp{min-height:72px;resize:vertical}
 "use strict";
 const KEY = "uned-lecturas-v1";
 
-/* ---------- Datos iniciales ---------- */
-function seed(){
-  let n = 0; const id = p => p + (++n).toString(36);
-  const cats = [
-    {id:"manual",   name:"Manual",   color:"#8a5a2b"},
-    {id:"lectura",  name:"Lectura",  color:"#2f6f8f"},
-    {id:"material", name:"Material", color:"#7a6f5c"},
-    {id:"video",    name:"Vídeo",    color:"#8a4f9e"},
-    {id:"test",     name:"Test",     color:"#3f7a4a"},
-    {id:"entrega",  name:"Entrega",  color:"#b0472a"}
-  ];
-  const it = (title, cat, note) => ({id:id("i"), title, cat, done:false, note: note || ""});
-  const ipcTopic = (block, name, nTexts) => ({
-    id:id("t"), block, name,
-    items:[ it("Transparencias","material"),
-            ...Array.from({length:nTexts},(_,k)=>it(`Texto ${k+1}`,"lectura")),
-            it("Test de autoevaluación","test") ]
-  });
-  const B1="Bloque I · Evidencia, verdad y conocimiento científico",
-        B2="Bloque II · Los límites de la ciencia",
-        B3="Bloque III · La ciencia en sociedad";
-  const ipc = {
-    id:"ipc", code:"IPC", name:"Introducción al Pensamiento Científico", semester:"1.er cuatrimestre", color:"ipc",
-    topics:[
-      ipcTopic(B1,"T1 · Ciencia, hechos y evidencia",3),
-      ipcTopic(B1,"T2 · Conocimiento empírico y observación",3),
-      ipcTopic(B1,"T3 · Experimentación",2),
-      ipcTopic(B1,"T4 · El método científico",1),
-      ipcTopic(B2,"T5 · El problema de la inducción",2),
-      ipcTopic(B2,"T6 · Probabilidad y estadística",3),
-      ipcTopic(B2,"T7 · El uso de los modelos en ciencia",3),
-      ipcTopic(B2,"T8 · Paradigmas y cambio científico",4),
-      ipcTopic(B3,"T9 · El criterio de demarcación",5),
-      ipcTopic(B3,"T10 · La ciencia y sus enemigos",12),
-      ipcTopic(B3,"T11 · La ciencia como producto social",5),
-      ipcTopic(B3,"T12 · ¿Cómo funcionan las instituciones científicas?",7),
-      {id:id("t"), block:"Evaluación continua", name:"PEC · Comentarios de texto", items:[
-        it("PEC Bloque I","entrega","Límite: 7 nov 2026"),
-        it("PEC Bloque II","entrega","Límite: 7 dic 2026"),
-        it("PEC Bloque III","entrega","Límite: 11 ene 2027")]}
-    ]
+/* ---------- Contenido ----------
+   Las lecturas viven en content.json (con IDs estables y "contentVersion").
+   El progreso y las ediciones viven en el dispositivo (localStorage).
+   "Actualizar contenido" fusiona lo nuevo de content.json sin tocar lo marcado. */
+
+// IDs de la primera versión de la app → IDs estables de content.json
+const LEGACY = {"t1":["ipc-t01","T1 · Ciencia, hechos y evidencia","Bloque I · Evidencia, verdad y conocimiento científico"],"i2":["ipc-t01-01","Transparencias","material",""],"i3":["ipc-t01-02","Texto 1","lectura",""],"i4":["ipc-t01-03","Texto 2","lectura",""],"i5":["ipc-t01-04","Texto 3","lectura",""],"i6":["ipc-t01-05","Test de autoevaluación","test",""],"t7":["ipc-t02","T2 · Conocimiento empírico y observación","Bloque I · Evidencia, verdad y conocimiento científico"],"i8":["ipc-t02-01","Transparencias","material",""],"i9":["ipc-t02-02","Texto 1","lectura",""],"ia":["ipc-t02-03","Texto 2","lectura",""],"ib":["ipc-t02-04","Texto 3","lectura",""],"ic":["ipc-t02-05","Test de autoevaluación","test",""],"td":["ipc-t03","T3 · Experimentación","Bloque I · Evidencia, verdad y conocimiento científico"],"ie":["ipc-t03-01","Transparencias","material",""],"if":["ipc-t03-02","Texto 1","lectura",""],"ig":["ipc-t03-03","Texto 2","lectura",""],"ih":["ipc-t03-04","Test de autoevaluación","test",""],"ti":["ipc-t04","T4 · El método científico","Bloque I · Evidencia, verdad y conocimiento científico"],"ij":["ipc-t04-01","Transparencias","material",""],"ik":["ipc-t04-02","Texto 1","lectura",""],"il":["ipc-t04-03","Test de autoevaluación","test",""],"tm":["ipc-t05","T5 · El problema de la inducción","Bloque II · Los límites de la ciencia"],"in":["ipc-t05-01","Transparencias","material",""],"io":["ipc-t05-02","Texto 1","lectura",""],"ip":["ipc-t05-03","Texto 2","lectura",""],"iq":["ipc-t05-04","Test de autoevaluación","test",""],"tr":["ipc-t06","T6 · Probabilidad y estadística","Bloque II · Los límites de la ciencia"],"is":["ipc-t06-01","Transparencias","material",""],"it":["ipc-t06-02","Texto 1","lectura",""],"iu":["ipc-t06-03","Texto 2","lectura",""],"iv":["ipc-t06-04","Texto 3","lectura",""],"iw":["ipc-t06-05","Test de autoevaluación","test",""],"tx":["ipc-t07","T7 · El uso de los modelos en ciencia","Bloque II · Los límites de la ciencia"],"iy":["ipc-t07-01","Transparencias","material",""],"iz":["ipc-t07-02","Texto 1","lectura",""],"i10":["ipc-t07-03","Texto 2","lectura",""],"i11":["ipc-t07-04","Texto 3","lectura",""],"i12":["ipc-t07-05","Test de autoevaluación","test",""],"t13":["ipc-t08","T8 · Paradigmas y cambio científico","Bloque II · Los límites de la ciencia"],"i14":["ipc-t08-01","Transparencias","material",""],"i15":["ipc-t08-02","Texto 1","lectura",""],"i16":["ipc-t08-03","Texto 2","lectura",""],"i17":["ipc-t08-04","Texto 3","lectura",""],"i18":["ipc-t08-05","Texto 4","lectura",""],"i19":["ipc-t08-06","Test de autoevaluación","test",""],"t1a":["ipc-t09","T9 · El criterio de demarcación","Bloque III · La ciencia en sociedad"],"i1b":["ipc-t09-01","Transparencias","material",""],"i1c":["ipc-t09-02","Texto 1","lectura",""],"i1d":["ipc-t09-03","Texto 2","lectura",""],"i1e":["ipc-t09-04","Texto 3","lectura",""],"i1f":["ipc-t09-05","Texto 4","lectura",""],"i1g":["ipc-t09-06","Texto 5","lectura",""],"i1h":["ipc-t09-07","Test de autoevaluación","test",""],"t1i":["ipc-t10","T10 · La ciencia y sus enemigos","Bloque III · La ciencia en sociedad"],"i1j":["ipc-t10-01","Transparencias","material",""],"i1k":["ipc-t10-02","Texto 1","lectura",""],"i1l":["ipc-t10-03","Texto 2","lectura",""],"i1m":["ipc-t10-04","Texto 3","lectura",""],"i1n":["ipc-t10-05","Texto 4","lectura",""],"i1o":["ipc-t10-06","Texto 5","lectura",""],"i1p":["ipc-t10-07","Texto 6","lectura",""],"i1q":["ipc-t10-08","Texto 7","lectura",""],"i1r":["ipc-t10-09","Texto 8","lectura",""],"i1s":["ipc-t10-10","Texto 9","lectura",""],"i1t":["ipc-t10-11","Texto 10","lectura",""],"i1u":["ipc-t10-12","Texto 11","lectura",""],"i1v":["ipc-t10-13","Texto 12","lectura",""],"i1w":["ipc-t10-14","Test de autoevaluación","test",""],"t1x":["ipc-t11","T11 · La ciencia como producto social","Bloque III · La ciencia en sociedad"],"i1y":["ipc-t11-01","Transparencias","material",""],"i1z":["ipc-t11-02","Texto 1","lectura",""],"i20":["ipc-t11-03","Texto 2","lectura",""],"i21":["ipc-t11-04","Texto 3","lectura",""],"i22":["ipc-t11-05","Texto 4","lectura",""],"i23":["ipc-t11-06","Texto 5","lectura",""],"i24":["ipc-t11-07","Test de autoevaluación","test",""],"t25":["ipc-t12","T12 · ¿Cómo funcionan las instituciones científicas?","Bloque III · La ciencia en sociedad"],"i26":["ipc-t12-01","Transparencias","material",""],"i27":["ipc-t12-02","Texto 1","lectura",""],"i28":["ipc-t12-03","Texto 2","lectura",""],"i29":["ipc-t12-04","Texto 3","lectura",""],"i2a":["ipc-t12-05","Texto 4","lectura",""],"i2b":["ipc-t12-06","Texto 5","lectura",""],"i2c":["ipc-t12-07","Texto 6","lectura",""],"i2d":["ipc-t12-08","Texto 7","lectura",""],"i2e":["ipc-t12-09","Test de autoevaluación","test",""],"t2f":["ipc-t13","PEC · Comentarios de texto","Evaluación continua"],"i2g":["ipc-t13-01","PEC Bloque I","entrega","Límite: 7 nov 2026"],"i2h":["ipc-t13-02","PEC Bloque II","entrega","Límite: 7 dic 2026"],"i2i":["ipc-t13-03","PEC Bloque III","entrega","Límite: 11 ene 2027"],"t2j":["as1-t01","T1 · Antropología y cultura",""],"i2k":["as1-t01-01","Kottak, cap. 1 «¿Qué es antropología?»","manual",""],"i2l":["as1-t01-02","Kottak, cap. 2 «Cultura»","manual",""],"i2m":["as1-t01-03","Kottak, cap. 3 · último epígrafe (cuestiones éticas)","manual",""],"i2n":["as1-t01-04","Bohannan, «Shakespeare en la selva»","lectura","Velasco"],"i2o":["as1-t01-05","Brown, «Relativismo 2.0»","lectura","Cruces y Pérez Galán"],"i2p":["as1-t01-06","Videoclase T1","video",""],"t2q":["as1-t02","T2 · Método y teorías",""],"i2r":["as1-t02-01","Kottak, cap. 3 «Antropología en acción»","manual",""],"i2s":["as1-t02-02","Peacock, «Método»","lectura","Velasco"],"i2t":["as1-t02-03","Keesing, «Teorías de la cultura»","lectura","Velasco"],"i2u":["as1-t02-04","Videoclase T2","video",""],"t2v":["as1-t03","T3 · Etnicidad, raza e identidad",""],"i2w":["as1-t03-01","Kottak, «Etnicidad y raza»","manual",""],"i2x":["as1-t03-02","Lévi-Strauss, «Raza e historia»","lectura","Velasco"],"i2y":["as1-t03-03","S. Hall, «Introducción a Representación»","lectura","Cruces y Pérez Galán"],"i2z":["as1-t03-04","S. Hall, «El espectáculo del Otro»","lectura","Cruces y Pérez Galán"],"i30":["as1-t03-05","Baumann, «Gramáticas de identidad/alteridad»","lectura","Cruces y Pérez Galán"],"i31":["as1-t03-06","Videoclase T3","video",""],"t32":["as1-t04","T4 · Lenguaje, comunicación y cognición",""],"i33":["as1-t04-01","Kottak, «Lenguaje y comunicación»","manual",""],"i34":["as1-t04-02","E. y M. Hall, «El sonido del silencio»","lectura","Velasco"],"i35":["as1-t04-03","Díaz de Rada y Cruces, «Etnociencia»","lectura","Cruces y Pérez Galán"],"i36":["as1-t04-04","Pratt, «¿Por qué la Virgen de Zapopan fue a Los Ángeles?»","lectura","Cruces y Pérez Galán"],"i37":["as1-t04-05","Videoclase T4","video",""],"t38":["as1-t05","T5 · Antropología simbólica",""],"i39":["as1-t05-01","Kottak, «Religión»","manual",""],"i3a":["as1-t05-02","Turner, «Símbolos en el ritual Ndembu»","lectura","Velasco"],"i3b":["as1-t05-03","Finnegan, «¿Para qué estudiar la música?»","lectura","Cruces y Pérez Galán"],"i3c":["as1-t05-04","Videoclase T5","video",""],"t3d":["as1-t06","T6 · Antropología urbana",""],"i3e":["as1-t06-01","García Canclini, «Las cuatro ciudades de México»","lectura","Cruces y Pérez Galán"],"i3f":["as1-t06-02","Martín Barbero, «La ciudad que median los miedos»","lectura","Cruces y Pérez Galán"],"i3g":["as1-t06-03","Videoclase T6","video",""],"t3h":["as1-t07","Trabajo voluntario (+1 punto)",""],"i3i":["as1-t07-01","Leer la pregunta-guía","entrega",""],"i3j":["as1-t07-02","Esquema y selección de lecturas","entrega",""],"i3k":["as1-t07-03","Redacción (1/3)","entrega",""],"i3l":["as1-t07-04","Redacción (2/3)","entrega",""],"i3m":["as1-t07-05","Redacción (3/3)","entrega",""],"i3n":["as1-t07-06","Revisión","entrega",""],"i3o":["as1-t07-07","Subir el trabajo","entrega","Límite: 8 ene 2027, 23:55"]};
+
+function migrate(st){
+  if(!st || !Array.isArray(st.subjects)) return null;
+  if((st.version || 1) < 2){
+    // LEGACY[idAntiguo] = [idNuevo, título/nombre original, ...]; si difiere, es que lo editó el usuario
+    for(const s of st.subjects) for(const t of s.topics){
+      const L = LEGACY[t.id];
+      if(L){ t.id = L[0]; t.src = true; if(t.name !== L[1] || (t.block||"") !== L[2]) t.edited = true; }
+      for(const i of t.items){ const M = LEGACY[i.id];
+        if(M){ i.id = M[0]; i.src = true; if(i.title !== M[1] || i.cat !== M[2] || (i.note||"") !== M[3]) i.edited = true; } }
+    }
+    for(const s of st.subjects) s.src = true;
+    st.cats.forEach(c => { if(["manual","lectura","material","video","test","entrega"].includes(c.id)) c.src = true; });
+    st.version = 2; st.contentVersion = 1;
+  }
+  return st;
+}
+
+function fromContent(c){
+  const cp = o => JSON.parse(JSON.stringify(o));
+  return {
+    version:2, contentVersion:c.contentVersion,
+    cats: c.cats.map(x => ({...cp(x), src:true})),
+    subjects: c.subjects.map(s => ({...cp(s), src:true, topics: s.topics.map(t => ({...cp(t), src:true,
+      items: t.items.map(i => ({note:"", ...cp(i), done:false, src:true}))}))}))
   };
-  const V="Velasco", C="Cruces y Pérez Galán";
-  const as1 = {
-    id:"as1", code:"AS1", name:"Antropología Social I", semester:"1.er cuatrimestre", color:"as1",
-    topics:[
-      {id:id("t"), name:"T1 · Antropología y cultura", items:[
-        it("Kottak, cap. 1 «¿Qué es antropología?»","manual"),
-        it("Kottak, cap. 2 «Cultura»","manual"),
-        it("Kottak, cap. 3 · último epígrafe (cuestiones éticas)","manual"),
-        it("Bohannan, «Shakespeare en la selva»","lectura",V),
-        it("Brown, «Relativismo 2.0»","lectura",C),
-        it("Videoclase T1","video")]},
-      {id:id("t"), name:"T2 · Método y teorías", items:[
-        it("Kottak, cap. 3 «Antropología en acción»","manual"),
-        it("Peacock, «Método»","lectura",V),
-        it("Keesing, «Teorías de la cultura»","lectura",V),
-        it("Videoclase T2","video")]},
-      {id:id("t"), name:"T3 · Etnicidad, raza e identidad", items:[
-        it("Kottak, «Etnicidad y raza»","manual"),
-        it("Lévi-Strauss, «Raza e historia»","lectura",V),
-        it("S. Hall, «Introducción a Representación»","lectura",C),
-        it("S. Hall, «El espectáculo del Otro»","lectura",C),
-        it("Baumann, «Gramáticas de identidad/alteridad»","lectura",C),
-        it("Videoclase T3","video")]},
-      {id:id("t"), name:"T4 · Lenguaje, comunicación y cognición", items:[
-        it("Kottak, «Lenguaje y comunicación»","manual"),
-        it("E. y M. Hall, «El sonido del silencio»","lectura",V),
-        it("Díaz de Rada y Cruces, «Etnociencia»","lectura",C),
-        it("Pratt, «¿Por qué la Virgen de Zapopan fue a Los Ángeles?»","lectura",C),
-        it("Videoclase T4","video")]},
-      {id:id("t"), name:"T5 · Antropología simbólica", items:[
-        it("Kottak, «Religión»","manual"),
-        it("Turner, «Símbolos en el ritual Ndembu»","lectura",V),
-        it("Finnegan, «¿Para qué estudiar la música?»","lectura",C),
-        it("Videoclase T5","video")]},
-      {id:id("t"), name:"T6 · Antropología urbana", items:[
-        it("García Canclini, «Las cuatro ciudades de México»","lectura",C),
-        it("Martín Barbero, «La ciudad que median los miedos»","lectura",C),
-        it("Videoclase T6","video")]},
-      {id:id("t"), name:"Trabajo voluntario (+1 punto)", items:[
-        it("Leer la pregunta-guía","entrega"),
-        it("Esquema y selección de lecturas","entrega"),
-        it("Redacción (1/3)","entrega"),
-        it("Redacción (2/3)","entrega"),
-        it("Redacción (3/3)","entrega"),
-        it("Revisión","entrega"),
-        it("Subir el trabajo","entrega","Límite: 8 ene 2027, 23:55")]}
-    ]
-  };
-  const as2 = {id:"as2", code:"AS2", name:"Antropología Social II", semester:"2.º cuatrimestre", color:"as2", topics:[]};
-  return {version:1, cats, subjects:[ipc, as1, as2]};
+}
+
+/* Fusiona el contenido nuevo en el estado del usuario.
+   - Añade lo que falte (en su sitio).
+   - Actualiza títulos, categorías y notas de lo que el usuario no ha editado.
+   - Quita lo que ya no está en el contenido, salvo que esté marcado o editado por el usuario.
+   - Nunca toca "done". */
+function mergeContent(st, c){
+  const r = {added:0, updated:0, removed:0};
+  const gone = new Set(st.deleted || []);
+  const set = (obj, k, v) => { if(v !== undefined && (obj[k] ?? "") !== (v ?? "")){ obj[k] = v; return 1; } return 0; };
+
+  for(const cc of c.cats){
+    const ex = st.cats.find(x => x.id === cc.id);
+    if(gone.has(cc.id)) continue;
+    if(!ex) st.cats.push({...cc, src:true});
+    else if(!ex.edited){ set(ex,"name",cc.name); set(ex,"color",cc.color); }
+  }
+
+  const allTopics = () => st.subjects.flatMap(s => s.topics);
+  const allItems = () => allTopics().flatMap(t => t.items);
+
+  for(const cs of c.subjects){
+    let s = st.subjects.find(x => x.id === cs.id);
+    if(!s){ s = {id:cs.id, code:cs.code, name:cs.name, semester:cs.semester, color:cs.color, src:true, topics:[]}; st.subjects.push(s); }
+    else if(!s.edited){ for(const k of ["code","name","semester","color"]) set(s,k,cs[k]); }
+
+    let prevTopic = null;
+    for(const ct of cs.topics){
+      if(gone.has(ct.id)) continue;
+      let t = allTopics().find(x => x.id === ct.id);
+      if(!t){
+        t = {id:ct.id, name:ct.name, block:ct.block || "", src:true, items:[]};
+        const at = prevTopic ? s.topics.indexOf(prevTopic) + 1 : 0;
+        s.topics.splice(at < 0 ? s.topics.length : at, 0, t);
+      } else if(!t.edited){
+        r.updated += set(t,"name",ct.name) | set(t,"block",ct.block || "");
+      }
+      if(s.topics.includes(t)) prevTopic = t;
+
+      let prevItem = null;
+      for(const ci of ct.items){
+        if(gone.has(ci.id)) continue;
+        let i = allItems().find(x => x.id === ci.id);
+        if(!i){
+          i = {id:ci.id, title:ci.title, cat:ci.cat, note:ci.note || "", done:false, src:true};
+          const at = prevItem ? t.items.indexOf(prevItem) + 1 : t.items.length;
+          t.items.splice(at < 0 ? t.items.length : at, 0, i); r.added++;
+        } else if(!i.edited){
+          r.updated += set(i,"title",ci.title) | set(i,"cat",ci.cat) | set(i,"note",ci.note || "");
+        }
+        if(t.items.includes(i)) prevItem = i;
+      }
+    }
+  }
+
+  // Retiradas: solo lo que vino del contenido, no está marcado y el usuario no ha editado.
+  const keepT = new Set(c.subjects.flatMap(s => s.topics.map(t => t.id)));
+  const keepI = new Set(c.subjects.flatMap(s => s.topics.flatMap(t => t.items.map(i => i.id))));
+  for(const s of st.subjects){
+    for(const t of s.topics){
+      const before = t.items.length;
+      t.items = t.items.filter(i => !i.src || i.edited || i.done || keepI.has(i.id));
+      r.removed += before - t.items.length;
+    }
+    s.topics = s.topics.filter(t => !t.src || t.edited || keepT.has(t.id) || t.items.length);
+  }
+
+  st.contentVersion = c.contentVersion;
+  return r;
+}
+
+async function fetchContent(){
+  const res = await fetch("content.json?v=" + Date.now(), {cache:"no-store"});
+  if(!res.ok) throw new Error("HTTP " + res.status);
+  const c = await res.json();
+  if(!Array.isArray(c.subjects) || typeof c.contentVersion !== "number") throw new Error("content.json no válido");
+  return c;
 }
 
 /* ---------- Estado ---------- */
-let S;
-try { S = JSON.parse(localStorage.getItem(KEY)); } catch(e) { S = null; }
-if(!S || !Array.isArray(S.subjects)) S = seed();
+let S, pending = null;
+try { S = migrate(JSON.parse(localStorage.getItem(KEY))); } catch(e) { S = null; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast("No se pudo guardar"); } }
-save();
+if(S) save();
+
+async function checkUpdates(manual){
+  try{
+    const c = await fetchContent();
+    if(!S){ S = fromContent(c); save(); render(); return; }
+    if(c.contentVersion > (S.contentVersion || 0)){ pending = c; render(); if(manual) toast("Hay contenido nuevo"); }
+    else if(manual) toast("Ya tienes el contenido al día");
+  }catch(e){
+    if(!S) showOffline(); else if(manual) toast("Sin conexión: inténtalo más tarde");
+  }
+}
+function applyUpdate(){
+  if(!pending) return;
+  const r = mergeContent(S, pending); pending = null; save(); render();
+  const parts = [];
+  if(r.added) parts.push(`${r.added} nuevas`);
+  if(r.updated) parts.push(`${r.updated} cambios`);
+  if(r.removed) parts.push(`${r.removed} retiradas`);
+  toast(parts.length ? "Actualizado: " + parts.join(" · ") : "Contenido actualizado");
+}
+function showOffline(){
+  document.getElementById("app").innerHTML = `<div class="empty" style="margin-top:40px"><p>Necesitas conexión la primera vez para descargar las lecturas.</p>
+    <button class="btn primary" onclick="location.reload()">Reintentar</button></div>`;
+}
 
 const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const $ = s => document.querySelector(s);
@@ -298,6 +343,7 @@ function ring(p, c, size){
 /* ---------- Render ---------- */
 let lastView = "";
 function render(){
+  if(!S){ $("#app").innerHTML = `<div class="empty" style="margin-top:40px"><p>Cargando lecturas…</p></div>`; return; }
   const key = ui.view + (ui.sid||""), enter = key !== lastView ? " enter" : ""; lastView = key;
   const bar = $("#barIn"), app = $("#app");
   if(ui.view === "home"){
@@ -307,6 +353,8 @@ function render(){
       <section class="hero">
         <div class="eyebrow">Grado en Filosofía · UNED 2026/27</div>
         <h1>Lecturas</h1>
+        ${pending ? `<div class="update"><div class="ut"><b>Contenido nuevo disponible</b>Se añadirán las lecturas nuevas sin tocar lo que ya has marcado.</div>
+          <button class="btn primary small" data-a="applyUpdate">Actualizar</button></div>` : ""}
         <div class="overall"><div class="num">${o.p}%</div>
           <div class="meta">${o.d} de ${o.t} completadas en total<div class="track"><i style="width:${o.p}%"></i></div></div></div>
       </section>
@@ -404,11 +452,11 @@ function itemSheet(tid, iid){
     const title = $("#fTitle").value.trim(); if(!title){ $("#fTitle").focus(); return; }
     const data = {title, cat: pickedCat(), note: $("#fNote").value.trim()};
     const dest = s.topics.find(x => x.id===$("#fTopic").value) || t;
-    if(iid){ Object.assign(i, data); if(dest!==t){ t.items.splice(t.items.indexOf(i),1); dest.items.push(i); } }
+    if(iid){ if(i.title!==data.title||i.cat!==data.cat||(i.note||"")!==data.note) i.edited = true; Object.assign(i, data); if(dest!==t){ t.items.splice(t.items.indexOf(i),1); dest.items.push(i); } }
     else dest.items.push({id:uid("i"), done:false, ...data});
     save(); closeSheet(); render();
   };
-  if(iid) $("#del").onclick = () => { if(confirm(`¿Eliminar «${i.title}»?`)){ t.items.splice(t.items.indexOf(i),1); save(); closeSheet(); render(); } };
+  if(iid) $("#del").onclick = () => { if(confirm(`¿Eliminar «${i.title}»?`)){ tomb(i); t.items.splice(t.items.indexOf(i),1); save(); closeSheet(); render(); } };
   else $("#cancel").onclick = closeSheet;
 }
 
@@ -427,7 +475,7 @@ function topicSheet(tid){
   $("#ok").onclick = () => {
     const name = $("#fName").value.trim(); if(!name){ $("#fName").focus(); return; }
     const block = $("#fBlock").value.trim();
-    if(tid) Object.assign(t, {name, block});
+    if(tid){ if(t.name!==name||(t.block||"")!==block) t.edited = true; Object.assign(t, {name, block}); }
     else { const nt = {id:uid("t"), name, block, items:[]}; s.topics.push(nt); ui.open.add(nt.id); ui.edit = true; }
     save(); closeSheet(); render();
   };
@@ -435,7 +483,7 @@ function topicSheet(tid){
     const move = d => { const k = s.topics.indexOf(t), j = k+d; if(j<0||j>=s.topics.length) return;
       [s.topics[k], s.topics[j]] = [s.topics[j], s.topics[k]]; save(); render(); };
     $("#up").onclick = () => move(-1); $("#down").onclick = () => move(1);
-    $("#del").onclick = () => { if(confirm(`¿Eliminar «${t.name}» y todo su contenido?`)){ s.topics.splice(s.topics.indexOf(t),1); save(); closeSheet(); render(); } };
+    $("#del").onclick = () => { if(confirm(`¿Eliminar «${t.name}» y todo su contenido?`)){ tomb(t); t.items.forEach(tomb); s.topics.splice(s.topics.indexOf(t),1); save(); closeSheet(); render(); } };
   } else $("#cancel").onclick = closeSheet;
 }
 
@@ -449,6 +497,9 @@ function settingsSheet(){
     <div class="row mt"><button class="btn primary" id="saveCats">Guardar categorías</button></div>
     <label class="f mt">Asignaturas</label>
     ${S.subjects.map(s => `<div class="crow" style="display:flex;gap:8px;margin-bottom:8px"><input class="inp" data-sname="${s.id}" value="${esc(s.name)}"></div>`).join("")}
+    <label class="f mt">Contenido</label>
+    <p class="hint" style="margin-top:0">Versión ${S.contentVersion || 1} de las lecturas. Al actualizar se añaden las nuevas y se conserva todo lo marcado.</p>
+    <div class="row mt"><button class="btn" id="chk">Buscar actualizaciones</button></div>
     <label class="f mt">Copia de seguridad</label>
     <p class="hint" style="margin-top:0">El progreso se guarda solo en este dispositivo. Exporta una copia de vez en cuando.</p>
     <div class="row mt"><button class="btn" id="exp">Exportar</button><button class="btn" id="imp">Importar</button></div>
@@ -467,9 +518,13 @@ function settingsSheet(){
     if(used && !confirm(`Hay ${used} elementos con esta categoría. Quedarán «Sin categoría». ¿Eliminar?`)) return;
     row.remove(); };
   $("#saveCats").onclick = () => {
-    S.cats = [...list.querySelectorAll(".crow")].map(r => ({id:r.dataset.id, color:r.querySelector("[type=color]").value,
-      name:r.querySelector(".inp").value.trim()})).filter(c=>c.name);
-    sheet.querySelectorAll("[data-sname]").forEach(inp => { const s = subj(inp.dataset.sname); if(s && inp.value.trim()) s.name = inp.value.trim(); });
+    const kept = new Set([...list.querySelectorAll(".crow")].map(r => r.dataset.id));
+    S.cats.filter(c => !kept.has(c.id)).forEach(tomb);
+    S.cats = [...list.querySelectorAll(".crow")].map(r => { const old = S.cats.find(c=>c.id===r.dataset.id) || {};
+      const c = {...old, id:r.dataset.id, color:r.querySelector("[type=color]").value, name:r.querySelector(".inp").value.trim()};
+      if(old.src && (old.name!==c.name || old.color!==c.color)) c.edited = true; return c; }).filter(c=>c.name);
+
+    sheet.querySelectorAll("[data-sname]").forEach(inp => { const s = subj(inp.dataset.sname); if(s && inp.value.trim() && s.name !== inp.value.trim()){ s.name = inp.value.trim(); s.edited = true; } });
     save(); render(); toast("Guardado");
   };
   $("#exp").onclick = async () => {
@@ -484,11 +539,12 @@ function settingsSheet(){
   $("#file").onchange = async e => {
     const f = e.target.files[0]; if(!f) return;
     try{ const d = JSON.parse(await f.text()); if(!Array.isArray(d.subjects) || !Array.isArray(d.cats)) throw 0;
-      if(confirm("Esto sustituye todos los datos actuales por los de la copia. ¿Continuar?")){ S = d; save(); closeSheet(); ui.view="home"; render(); toast("Copia importada"); } }
+      if(confirm("Esto sustituye todos los datos actuales por los de la copia. ¿Continuar?")){ S = migrate(d); save(); closeSheet(); ui.view="home"; render(); toast("Copia importada"); } }
     catch(_){ toast("Ese archivo no es una copia válida"); }
   };
-  $("#reset").onclick = () => { if(confirm("Se borrará todo tu progreso y volverán las lecturas iniciales. ¿Seguro?")){ S = seed(); save(); closeSheet(); ui.view="home"; render(); toast("Restablecido"); } };
+  $("#reset").onclick = () => { if(confirm("Se borrará todo tu progreso y volverán las lecturas iniciales. ¿Seguro?")){ closeSheet(); fetchContent().then(c => { S = fromContent(c); pending = null; save(); ui.view="home"; render(); toast("Restablecido"); }).catch(() => toast("Necesitas conexión para restablecer")); } };
   $("#close").onclick = closeSheet;
+  $("#chk").onclick = async () => { closeSheet(); await checkUpdates(true); };
 }
 
 /* ---------- Eventos ---------- */
@@ -502,6 +558,7 @@ document.addEventListener("click", e => {
     case "open": ui.view="subject"; ui.sid=id; ui.filter="all"; ui.edit=false; ui.open = new Set(); history.pushState({v:"s",id},""); render(); scrollTo(0,0); break;
     case "home": history.length > 1 && history.state ? history.back() : (ui.view="home", render()); break;
     case "settings": settingsSheet(); break;
+    case "applyUpdate": applyUpdate(); break;
     case "toggleEdit": ui.edit = !ui.edit; render(); break;
     case "filter": ui.filter = id; render(); break;
     case "toggleTopic": ui.open.has(id) ? ui.open.delete(id) : ui.open.add(id); render(); break;
@@ -521,7 +578,13 @@ document.addEventListener("click", e => {
 addEventListener("popstate", () => { ui.view = "home"; ui.edit = false; render(); });
 addEventListener("scroll", () => $("#bar").classList.toggle("scrolled", scrollY > 4), {passive:true});
 
+function tomb(o){ if(o.src){ (S.deleted ||= []).includes(o.id) || S.deleted.push(o.id); } }
 render();
+checkUpdates(false);
+let lastCheck = Date.now();
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible" && Date.now() - lastCheck > 10*60*1000){ lastCheck = Date.now(); checkUpdates(false); }
+});
 if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
