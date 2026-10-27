@@ -1,7 +1,7 @@
 {
-  "name": "Lecturas UNED",
-  "short_name": "Lecturas",
-  "description": "Seguimiento de lecturas y tareas del Grado en Filosofía (UNED)",
+  "name": "Estudio UNED",
+  "short_name": "Estudio",
+  "description": "Lecturas, repaso, fechas y avisos del Grado en Filosofía (UNED)",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
